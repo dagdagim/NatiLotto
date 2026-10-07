@@ -5,7 +5,7 @@ import {
   Zap, HeartHandshake, HelpCircle, Video, Award, CheckCircle, MapPin, Gift, Settings,
   Play, Pause, RotateCcw, SkipForward, SkipBack, Volume2, VolumeX, Repeat
 } from 'lucide-react';
-import { api, DrawItem, FeaturedWinnerVideo, PromotionVideo } from '../services/api';
+import { api, DrawItem, FeaturedWinnerVideo, PromotionVideo, API_BASE_URL } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
 interface HomePageProps {
@@ -796,7 +796,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                           key={`winner-video-${currentWinner.id}-${currentWinner.videoUrl}`}
                           src={
                             currentWinner.directVideoUrl ||
-                            (currentWinner.videoUrl?.includes('.mp4') ? currentWinner.videoUrl : `http://localhost:4000/api/v1/winners/video/${currentWinnerTikTokId}.mp4`)
+                            (currentWinner.videoUrl?.includes('.mp4') ? currentWinner.videoUrl : `${API_BASE_URL}/winners/video/${currentWinnerTikTokId}.mp4`)
                           }
                           poster={currentWinner.thumbnailUrl || currentWinner.prizeImageUrl}
                           controls
@@ -834,7 +834,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                           key={`promo-mp4-${currentPromo.id}-${currentPromo.videoUrl}`}
                           src={
                             currentPromo.directVideoUrl ||
-                            (currentPromo.videoUrl?.includes('.mp4') ? currentPromo.videoUrl : `http://localhost:4000/api/v1/winners/video/${currentPromoTikTokId}.mp4`)
+                            (currentPromo.videoUrl?.includes('.mp4') ? currentPromo.videoUrl : `${API_BASE_URL}/winners/video/${currentPromoTikTokId}.mp4`)
                           }
                           poster={currentPromo.thumbnailUrl}
                           controls

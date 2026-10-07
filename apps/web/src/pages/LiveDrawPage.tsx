@@ -5,11 +5,12 @@ import {
   VolumeX, Copy, CheckCircle, Video, VideoOff, ExternalLink, Maximize2, RefreshCw
 } from 'lucide-react';
 import Hls from 'hls.js';
+import { API_BASE_URL, API_SERVER_URL } from '../services/api';
 
 const getApiStreamUrl = (path: string) => {
   if (!path) return '';
   if (path.startsWith('http://') || path.startsWith('https://')) return path;
-  return `http://localhost:4000${path.startsWith('/') ? '' : '/'}${path}`;
+  return `${API_SERVER_URL}${path.startsWith('/') ? '' : '/'}${path}`;
 };
 
 const resolveLiveStreamMedia = (rawUrl: string) => {
@@ -139,7 +140,7 @@ export const LiveDrawPage: React.FC<LiveDrawPageProps> = ({ drawId = 'NL-000123'
     if (!username) return;
     setTikTokLiveInfo(prev => ({ ...prev, isChecking: true }));
     try {
-      const res = await fetch(`http://localhost:4000/api/v1/draws/live-broadcast/tiktok-status?username=${encodeURIComponent(username)}`);
+      const res = await fetch(`${API_BASE_URL}/draws/live-broadcast/tiktok-status?username=${encodeURIComponent(username)}`);
       if (res.ok) {
         const data = await res.json();
         setTikTokLiveInfo({

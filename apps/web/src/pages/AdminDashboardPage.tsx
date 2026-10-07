@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { NatiLogo } from '../components/NatiLogo';
 import { AddProductModal } from '../components/AddProductModal';
 import { useAuth } from '../context/AuthContext';
-import { api, WinnerItem, FeaturedWinnerVideo, PromotionVideo } from '../services/api';
+import { api, WinnerItem, FeaturedWinnerVideo, PromotionVideo, API_BASE_URL } from '../services/api';
 import { 
   BarChart3, Users, Ticket, DollarSign, ShieldAlert, Award, 
   Clock, Plus, CheckCircle, AlertTriangle, Eye, ShieldCheck, 
@@ -920,7 +920,7 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
     if (!username) return;
     setAdminTikTokLiveStatus(prev => ({ ...prev, isChecking: true }));
     try {
-      const res = await fetch(`http://localhost:4000/api/v1/draws/live-broadcast/tiktok-status?username=${encodeURIComponent(username)}`);
+      const res = await fetch(`${API_BASE_URL}/draws/live-broadcast/tiktok-status?username=${encodeURIComponent(username)}`);
       if (res.ok) {
         const d = await res.json();
         setAdminTikTokLiveStatus({
@@ -1069,7 +1069,7 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
       const formData = new FormData();
       formData.append('video', file);
 
-      const res = await fetch('http://localhost:4000/api/v1/draws/live-broadcast/upload-video', {
+      const res = await fetch(`${API_BASE_URL}/draws/live-broadcast/upload-video`, {
         method: 'POST',
         body: formData,
       });
@@ -4006,7 +4006,7 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
                       }}>
                         <video
                           key={`admin-tt-${featuredWinnerVideo.id}`}
-                          src={`http://localhost:4000/api/v1/winners/video/${featuredWinnerVideo.tiktokVideoId || (featuredWinnerVideo.videoUrl.match(/\/video\/(\d+)/)?.[1]) || '7688259337197767943'}.mp4`}
+                          src={`${API_BASE_URL}/winners/video/${featuredWinnerVideo.tiktokVideoId || (featuredWinnerVideo.videoUrl.match(/\/video\/(\d+)/)?.[1]) || '7688259337197767943'}.mp4`}
                           controls
                           playsInline
                           loop

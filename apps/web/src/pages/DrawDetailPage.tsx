@@ -7,7 +7,7 @@ import {
   Dices, Search, X, ChevronLeft, Filter, RefreshCw, Trophy,
   Video, Play, ExternalLink
 } from 'lucide-react';
-import { api, DrawItem } from '../services/api';
+import { api, DrawItem, API_BASE_URL } from '../services/api';
 
 interface DrawDetailPageProps {
   drawId?: string;
@@ -602,7 +602,7 @@ export const DrawDetailPage: React.FC<DrawDetailPageProps> = ({ drawId, onNaviga
                   <div style={{ width: '100%', height: '100%', position: 'relative', background: '#0B0F19' }}>
                     {isTikTokProductVideo && tiktokProductId ? (
                       <video
-                        src={`http://localhost:4000/api/v1/winners/video/${tiktokProductId}.mp4`}
+                        src={`${API_BASE_URL}/winners/video/${tiktokProductId}.mp4`}
                         controls
                         playsInline
                         autoPlay
