@@ -1,0 +1,574 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                     String                  @id @default(uuid())
+  phone                  String                  @unique
+  passwordHash           String?
+  firstName              String?
+  lastName               String?
+  displayName            String
+  role                   UserRole                @default(USER)
+  verificationStatus     VerificationStatus      @default(UNVERIFIED)
+  dateOfBirth            DateTime?
+  isAgeVerified          Boolean                 @default(false)
+  isSelfExcluded         Boolean                 @default(false)
+  selfExclusionUntil     DateTime?
+  dailySpendLimitEtb     Int?
+  walletBalanceEtb       Int                     @default(0)
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+  email                  String?                 @unique
+  emailOtpExpiresAt      DateTime?
+  emailVerificationOtp   String?
+  isEmailVerified        Boolean                 @default(false)
+  location               String?
+  complianceRestrictions ComplianceRestriction[]
+  drawResults            DrawResult[]
+  notifications          Notification[]
+  notificationPref       NotificationPreference?
+  orders                 Order[]
+  payments               Payment[]
+  claims                 PrizeClaim[]
+  supportTickets         SupportTicket[]
+  termsAcceptances       TermsAcceptance[]
+  tickets                Ticket[]
+  transactions           Transaction[]
+  sessions               UserSession[]
+  winners                Winner[]
+
+  @@index([phone])
+  @@index([email])
+  @@index([role])
+  @@index([verificationStatus])
+}
+
+model UserSession {
+  id               String   @id @default(uuid())
+  userId           String
+  refreshTokenHash String
+  userAgent        String?
+  ipAddress        String?
+  isRevoked        Boolean  @default(false)
+  expiresAt        DateTime
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([refreshTokenHash])
+}
+
+model TermsAcceptance {
+  id         String   @id @default(uuid())
+  userId     String
+  version    String
+  acceptedAt DateTime @default(now())
+  ipAddress  String?
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model ComplianceRestriction {
+  id           String    @id @default(uuid())
+  userId       String
+  reason       String
+  restrictedBy String
+  isActive     Boolean   @default(true)
+  startsAt     DateTime  @default(now())
+  expiresAt    DateTime?
+  createdAt    DateTime  @default(now())
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isActive])
+}
+
+model Draw {
+  id                String            @id @default(uuid())
+  drawNumber        String            @unique
+  title             String
+  description       String
+  ticketPriceEtb    Int
+  totalTickets      Int
+  soldTickets       Int               @default(0)
+  maxTicketsPerUser Int               @default(25)
+  status            DrawStatus        @default(DRAFT)
+  salesStartDate    DateTime
+  salesEndDate      DateTime
+  drawDate          DateTime
+  permitNumber      String
+  isFeatured        Boolean           @default(false)
+  snapshotHash      String?
+  resultHash        String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  result            DrawResult?
+  rules             DrawRule[]
+  snapshot          DrawSnapshot?
+  orders            Order[]
+  prize             Prize?
+  claims            PrizeClaim[]
+  randomnessRecord  RandomnessRecord?
+  tickets           Ticket[]
+  winner            Winner?
+
+  @@index([status])
+  @@index([drawNumber])
+  @@index([salesEndDate])
+  @@index([isFeatured])
+}
+
+model Prize {
+  id             String        @id @default(uuid())
+  drawId         String        @unique
+  title          String
+  description    String
+  specifications Json          @default("{}")
+  retailValueEtb Int
+  category       PrizeCategory
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  draw           Draw          @relation(fields: [drawId], references: [id], onDelete: Cascade)
+  images         PrizeImage[]
+
+  @@index([category])
+}
+
+model PrizeImage {
+  id           String   @id @default(uuid())
+  prizeId      String
+  url          String
+  isPrimary    Boolean  @default(false)
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+  prize        Prize    @relation(fields: [prizeId], references: [id], onDelete: Cascade)
+
+  @@index([prizeId])
+}
+
+model DrawRule {
+  id           String @id @default(uuid())
+  drawId       String
+  ruleText     String
+  displayOrder Int    @default(0)
+  draw         Draw   @relation(fields: [drawId], references: [id], onDelete: Cascade)
+
+  @@index([drawId])
+}
+
+model Ticket {
+  id              String       @id @default(uuid())
+  ticketNumber    String
+  sequenceNumber  Int
+  drawId          String
+  userId          String
+  orderId         String
+  batchId         String?
+  status          TicketStatus @default(CONFIRMED)
+  isWinningTicket Boolean      @default(false)
+  hashSignature   String
+  createdAt       DateTime     @default(now())
+  winningResult   DrawResult?
+  batch           TicketBatch? @relation(fields: [batchId], references: [id])
+  draw            Draw         @relation(fields: [drawId], references: [id])
+  order           Order        @relation(fields: [orderId], references: [id])
+  user            User         @relation(fields: [userId], references: [id])
+  winnerRecord    Winner?
+
+  @@unique([drawId, sequenceNumber])
+  @@unique([drawId, ticketNumber])
+  @@index([drawId])
+  @@index([userId])
+  @@index([orderId])
+  @@index([status])
+}
+
+model TicketBatch {
+  id        String   @id @default(uuid())
+  drawId    String
+  orderId   String
+  startSeq  Int
+  endSeq    Int
+  quantity  Int
+  createdAt DateTime @default(now())
+  tickets   Ticket[]
+
+  @@index([drawId])
+}
+
+model Order {
+  id             String        @id @default(uuid())
+  orderNumber    String        @unique
+  userId         String
+  drawId         String
+  quantity       Int
+  unitPriceEtb   Int
+  subtotalEtb    Int
+  feeEtb         Int           @default(0)
+  totalEtb       Int
+  status         OrderStatus   @default(PENDING)
+  idempotencyKey String        @unique
+  paymentMethod  PaymentMethod
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  draw           Draw          @relation(fields: [drawId], references: [id])
+  user           User          @relation(fields: [userId], references: [id])
+  orderItems     OrderItem[]
+  payment        Payment?
+  tickets        Ticket[]
+
+  @@index([userId])
+  @@index([drawId])
+  @@index([status])
+  @@index([idempotencyKey])
+}
+
+model OrderItem {
+  id           String @id @default(uuid())
+  orderId      String
+  ticketNumber String
+  priceEtb     Int
+  order        Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+}
+
+model Payment {
+  id                String           @id @default(uuid())
+  orderId           String           @unique
+  userId            String
+  amountEtb         Int
+  paymentMethod     PaymentMethod
+  status            PaymentStatus    @default(PENDING)
+  providerReference String?          @unique
+  idempotencyKey    String           @unique
+  checkoutUrl       String?
+  rawResponse       Json?
+  verifiedAt        DateTime?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  order             Order            @relation(fields: [orderId], references: [id])
+  user              User             @relation(fields: [userId], references: [id])
+  attempts          PaymentAttempt[]
+  transactions      Transaction[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([providerReference])
+}
+
+model PaymentAttempt {
+  id        String   @id @default(uuid())
+  paymentId String
+  attemptNo Int
+  status    String
+  payload   Json?
+  error     String?
+  createdAt DateTime @default(now())
+  payment   Payment  @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  @@index([paymentId])
+}
+
+model PaymentWebhook {
+  id          String   @id @default(uuid())
+  provider    String
+  event       String
+  payload     Json
+  signature   String?
+  isProcessed Boolean  @default(false)
+  error       String?
+  createdAt   DateTime @default(now())
+
+  @@index([provider])
+  @@index([isProcessed])
+}
+
+model Transaction {
+  id                String   @id @default(uuid())
+  transactionNumber String   @unique
+  userId            String
+  paymentId         String?
+  type              String
+  amountEtb         Int
+  balanceAfterEtb   Int
+  reference         String
+  description       String
+  createdAt         DateTime @default(now())
+  payment           Payment? @relation(fields: [paymentId], references: [id])
+  user              User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model DrawSnapshot {
+  id               String   @id @default(uuid())
+  drawId           String   @unique
+  eligibleCount    Int
+  snapshotHash     String   @unique
+  ticketRangeStart Int
+  ticketRangeEnd   Int
+  snapshotData     Json
+  createdAt        DateTime @default(now())
+  draw             Draw     @relation(fields: [drawId], references: [id])
+
+  @@index([snapshotHash])
+}
+
+model RandomnessRecord {
+  id               String      @id @default(uuid())
+  drawId           String      @unique
+  provider         String
+  seedHash         String
+  seedHex          String
+  entropyTimestamp DateTime
+  createdAt        DateTime    @default(now())
+  drawResult       DrawResult?
+  draw             Draw        @relation(fields: [drawId], references: [id])
+
+  @@index([seedHash])
+}
+
+model DrawResult {
+  id                    String           @id @default(uuid())
+  drawId                String           @unique
+  winningTicketId       String           @unique
+  winningTicketNumber   String
+  winningSequenceNumber Int
+  winnerUserId          String
+  snapshotHash          String
+  resultHash            String           @unique
+  algorithmVersion      String           @default("1.0.0-csprng")
+  randomnessRecordId    String           @unique
+  publishedAt           DateTime         @default(now())
+  draw                  Draw             @relation(fields: [drawId], references: [id])
+  randomnessRecord      RandomnessRecord @relation(fields: [randomnessRecordId], references: [id])
+  winnerUser            User             @relation(fields: [winnerUserId], references: [id])
+  winningTicket         Ticket           @relation(fields: [winningTicketId], references: [id])
+
+  @@index([resultHash])
+  @@index([winningTicketNumber])
+}
+
+model Winner {
+  id                  String      @id @default(uuid())
+  drawId              String      @unique
+  userId              String
+  ticketId            String      @unique
+  winningTicketNumber String
+  winnerDisplayName   String
+  claimStatus         ClaimStatus @default(PENDING_CLAIM)
+  deliveryAddress     String?
+  city                String?
+  trackingNumber      String?
+  claimedAt           DateTime?
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+  claim               PrizeClaim?
+  draw                Draw        @relation(fields: [drawId], references: [id])
+  ticket              Ticket      @relation(fields: [ticketId], references: [id])
+  user                User        @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([claimStatus])
+}
+
+model PrizeClaim {
+  id             String         @id @default(uuid())
+  winnerId       String         @unique
+  drawId         String
+  userId         String
+  status         ClaimStatus    @default(PENDING_CLAIM)
+  identityDocUrl String?
+  verifiedBy     String?
+  approvedAt     DateTime?
+  dispatchedAt   DateTime?
+  deliveredAt    DateTime?
+  deliveryNotes  String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  draw           Draw           @relation(fields: [drawId], references: [id])
+  user           User           @relation(fields: [userId], references: [id])
+  winner         Winner         @relation(fields: [winnerId], references: [id])
+  delivery       PrizeDelivery?
+
+  @@index([status])
+}
+
+model PrizeDelivery {
+  id             String     @id @default(uuid())
+  claimId        String     @unique
+  courierName    String?
+  trackingCode   String?
+  recipientName  String
+  recipientPhone String
+  deliveryStreet String
+  deliveryCity   String
+  estimatedDate  DateTime?
+  deliveredAt    DateTime?
+  signatureProof String?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  claim          PrizeClaim @relation(fields: [claimId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  type      String
+  title     String
+  message   String
+  metadata  Json?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isRead])
+}
+
+model NotificationPreference {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  pushEnabled     Boolean  @default(true)
+  smsEnabled      Boolean  @default(true)
+  emailEnabled    Boolean  @default(false)
+  drawAlerts      Boolean  @default(true)
+  winnerAlerts    Boolean  @default(true)
+  marketingAlerts Boolean  @default(false)
+  updatedAt       DateTime @updatedAt
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id            String   @id @default(uuid())
+  actorId       String
+  actorRole     String
+  actorEmail    String?
+  action        String
+  entityType    String
+  entityId      String
+  details       Json?
+  ipAddress     String?
+  userAgent     String?
+  correlationId String?
+  timestamp     DateTime @default(now())
+
+  @@index([action])
+  @@index([entityType, entityId])
+  @@index([timestamp])
+  @@index([actorId])
+}
+
+model SupportTicket {
+  id        String   @id @default(uuid())
+  userId    String
+  ticketNo  String   @unique
+  subject   String
+  message   String
+  status    String   @default("OPEN")
+  priority  String   @default("NORMAL")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+}
+
+enum UserRole {
+  USER
+  SUPER_ADMIN
+  OPERATIONS
+  FINANCE
+  CONTENT_MANAGER
+  CUSTOMER_SUPPORT
+  COMPLIANCE
+  AUDITOR
+}
+
+enum VerificationStatus {
+  UNVERIFIED
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum DrawStatus {
+  DRAFT
+  PENDING_REVIEW
+  SCHEDULED
+  OPEN
+  CLOSING
+  CLOSED
+  AUTHORIZED
+  DRAWING
+  COMPLETED
+  CANCELLED
+  SUSPENDED
+}
+
+enum TicketStatus {
+  RESERVED
+  CONFIRMED
+  CANCELLED
+  WON
+  LOST
+  REFUNDED
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  SUCCESS
+  FAILED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  TELEBIRR
+  CBE_BIRR
+  CHAPA
+  BANK_TRANSFER
+  WALLET
+  MOCK
+}
+
+enum PrizeCategory {
+  ELECTRONICS
+  VEHICLES
+  REAL_ESTATE
+  CASH
+  TRAVEL
+  LIFESTYLE
+}
+
+enum ClaimStatus {
+  PENDING_CLAIM
+  IDENTITY_VERIFICATION
+  APPROVED
+  PREPARING
+  SHIPPED
+  DELIVERED
+  FORFEITED
+  DISPUTED
+}
