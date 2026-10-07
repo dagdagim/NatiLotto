@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "build": "nest build",
+    "vercel-build": "prisma generate && nest build",
     "start": "node dist/src/main.js",
     "dev": "nest start --watch",
     "prisma:generate": "prisma generate",
@@ -33,6 +34,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "compression": "^1.7.5",
+    "express": "^4.21.2",
     "helmet": "^8.0.0",
     "ioredis": "^5.4.2",
     "nodemailer": "^10.0.10",
