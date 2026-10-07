@@ -1,0 +1,38 @@
+services:
+  - type: web
+    name: nati-lotto-api
+    runtime: docker
+    dockerfilePath: Dockerfile
+    plan: free
+    region: frankfurt
+    healthCheckPath: /api/v1/draws
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4000
+      - key: DATABASE_URL
+        fromDatabase:
+          name: nati-lotto-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_ACCESS_EXPIRY
+        value: 15m
+      - key: JWT_REFRESH_EXPIRY
+        value: 7d
+      - key: MOCK_MODE
+        value: "true"
+      - key: PAYMENT_PROVIDER
+        value: MOCK
+      - key: SMS_PROVIDER
+        value: MOCK
+      - key: EMAIL_PROVIDER
+        value: MOCK
+
+databases:
+  - name: nati-lotto-db
+    plan: free
+    region: frankfurt
+    databaseName: nati_lotto
+    user: nati_admin
