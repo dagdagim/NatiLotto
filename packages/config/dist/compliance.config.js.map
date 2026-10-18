@@ -1,0 +1,1 @@
+{"version":3,"file":"compliance.config.js","sourceRoot":"","sources":["../src/compliance.config.ts"],"names":[],"mappings":";;;AAWa,QAAA,yBAAyB,GAAqB;IACzD,UAAU,EAAE,EAAE;IACd,oCAAoC,EAAE,IAAI;IAC1C,qBAAqB,EAAE,IAAI;IAC3B,sBAAsB,EAAE,GAAG;IAC3B,qBAAqB,EAAE,EAAE;IACzB,0BAA0B,EAAE,IAAI;IAChC,sBAAsB,EAAE,CAAC,IAAI,CAAC;IAC9B,yBAAyB,EAAE,EAAE;CAC9B,CAAC"}

@@ -1,0 +1,1 @@
+{"version":3,"file":"verification.schema.js","sourceRoot":"","sources":["../src/verification.schema.ts"],"names":[],"mappings":";;;AAAA,6BAAwB;AAEX,QAAA,kBAAkB,GAAG,OAAC,CAAC,MAAM,CAAC;IACzC,UAAU,EAAE,OAAC,CAAC,MAAM,EAAE,CAAC,GAAG,CAAC,CAAC,EAAE,0CAA0C,CAAC;IACzE,YAAY,EAAE,OAAC,CAAC,MAAM,EAAE,CAAC,GAAG,CAAC,CAAC,EAAE,gDAAgD,CAAC;CAClF,CAAC,CAAC"}

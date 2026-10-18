@@ -1,7 +1,10 @@
 # Node & dependencies
 node_modules/
 .pnpm-store/
+apps/*/dist/
 dist/
+!packages/*/dist/
+!packages/*/dist/**
 build/
 .next/
 out/

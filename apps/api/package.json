@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "prebuild": "node scripts/build-packages.js",
     "build": "nest build",
     "vercel-build": "node scripts/vercel-build.js",
     "start": "node dist/src/main.js",

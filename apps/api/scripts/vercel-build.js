@@ -5,6 +5,14 @@ delete process.env.PRISMA_QUERY_ENGINE_LIBRARY;
 
 const { execSync } = require('child_process');
 
+console.log('[vercel-build] Building workspace packages...');
+try {
+  require('./build-packages');
+} catch (err) {
+  console.error('[vercel-build] Workspace package build failed:', err.message);
+  process.exit(1);
+}
+
 console.log('[vercel-build] Generating Prisma Client for Vercel...');
 
 // Clean environment specifically for Prisma invocation
