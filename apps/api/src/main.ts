@@ -30,8 +30,10 @@ export function configureApp(app: INestApplication) {
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   });
 
-  // Global prefix
-  app.setGlobalPrefix('api/v1');
+  // Global prefix (with root and health check endpoints excluded)
+  app.setGlobalPrefix('api/v1', {
+    exclude: ['/', 'health'],
+  });
 
   // Request validation pipe
   app.useGlobalPipes(

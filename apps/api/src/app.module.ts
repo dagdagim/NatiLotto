@@ -14,6 +14,7 @@ import { VerificationModule } from './modules/verification/verification.module';
 import { WinnersModule } from './modules/winners/winners.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { WebSocketModule } from './modules/websocket/websocket.module';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -40,5 +41,6 @@ import { WebSocketModule } from './modules/websocket/websocket.module';
     WinnersModule,
     AdminModule,
   ],
+  controllers: [AppController],
 })
 export class AppModule {}
