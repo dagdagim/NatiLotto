@@ -30,7 +30,8 @@ const candidateTscPaths = [
 ];
 const localTsc = candidateTscPaths.find((p) => fs.existsSync(p));
 
-const packages = ['shared-types', 'config', 'validation'];
+// Only compile packages required by apps/api
+const packages = ['shared-types', 'config'];
 
 for (const pkg of packages) {
   const pkgDir = path.join(packagesDir, pkg);

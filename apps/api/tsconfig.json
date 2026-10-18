@@ -6,6 +6,7 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "target": "ES2022",
     "sourceMap": true,
     "outDir": "./dist",
@@ -16,6 +17,10 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    "paths": {
+      "@nati-lotto/shared-types": ["../../packages/shared-types/dist", "../../packages/shared-types/src"],
+      "@nati-lotto/config": ["../../packages/config/dist", "../../packages/config/src"]
+    }
   }
 }
