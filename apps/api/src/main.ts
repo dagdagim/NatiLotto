@@ -20,7 +20,8 @@ export function configureApp(app: INestApplication) {
       crossOriginEmbedderPolicy: false,
     })
   );
-  app.use(compression());
+  const compressionMiddleware = (typeof compression === 'function' ? compression : (compression as any).default || compression) as () => any;
+  app.use(compressionMiddleware());
 
   // CORS configuration
   app.enableCors({

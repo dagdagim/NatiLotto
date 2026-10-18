@@ -11,7 +11,12 @@
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": "./",
+    "paths": {
+      "@nati-lotto/shared-types": ["../shared-types/dist", "../shared-types/src"],
+      "zod": ["node_modules/zod", "../../apps/api/node_modules/zod", "../../apps/web/node_modules/zod", "../../node_modules/zod"]
+    }
   },
   "include": ["src/**/*"]
 }

@@ -44,17 +44,25 @@ for (const pkg of packages) {
 
   console.log(`[build-packages] Building @nati-lotto/${pkg}...`);
   try {
+    const buildEnv = {
+      ...process.env,
+      NODE_PATH: [
+        path.join(apiDir, 'node_modules'),
+        path.resolve(apiDir, '../../node_modules'),
+        process.env.NODE_PATH || '',
+      ].filter(Boolean).join(path.delimiter),
+    };
     if (localTsc) {
       execSync(`node "${localTsc}" --project "${tsconfigPath}"`, {
         stdio: 'inherit',
         cwd: pkgDir,
-        env: process.env,
+        env: buildEnv,
       });
     } else {
       execSync(`npx tsc --project "${tsconfigPath}"`, {
         stdio: 'inherit',
         cwd: pkgDir,
-        env: process.env,
+        env: buildEnv,
       });
     }
   } catch (err) {
